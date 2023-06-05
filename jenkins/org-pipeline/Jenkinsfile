@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                sh "echo checkout"
+                //checkout scm
+            }
+        }
+        stage('Build and Test') {
+            steps {
+                // Build and test steps specific to your organization's requirements
+                //sh 'mvn clean install'
+                //sh 'mvn test'
+                sh "echo build and test"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Deployment steps specific to your organization's requirements
+                //sh 'mvn deploy'
+                sh "echo deploy"
+            }
+        }
+    }
+}
