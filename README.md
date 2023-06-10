@@ -44,4 +44,4 @@ Get Org API endpoint
 - Allow Jenkinsfile from other repo to be used(need to restart Jenkins to have it take effect). Also requires [GitHub Branch Source plugin ](https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-admin-guide/github-branch-source-plugin)
 ![picture 14](images/7fee139b23fd9a0f94326eaaa3543f3ddfb57f4f0af89c1df8b677a031228b4b.png)  
 - Full configuration:
-<video src='images/fullscreen.mov' width=180/>
+<video src='images/fullscreen.mov'></video>
