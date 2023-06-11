@@ -61,6 +61,8 @@ controller:
                 configure {
                   //https://github.com/jenkinsci/job-dsl-plugin/blob/master/docs/The-Configure-Block.md
                   //https://github.com/jenkinsci/github-branch-source-plugin/blob/master/src/main/java/org/jenkinsci/plugins/github_branch_source/ForkPullRequestDiscoveryTrait.java
+                  //this path comes from job dsl template xml, similar to
+                  //https://github.com/jenkinsci/job-dsl-plugin/blob/master/job-dsl-core/src/main/resources/javaposse/jobdsl/dsl/jobs/OrganizationFolderJob-template.xml
                   def traits = it / navigators / 'org.jenkinsci.plugins.github__branch__source.GitHubSCMNavigator' / 'traits'
                   traits << 'org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait' {
                       strategyId(1)
