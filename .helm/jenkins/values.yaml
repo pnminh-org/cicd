@@ -28,6 +28,7 @@ controller:
       job-dsl: |
         jobs:
           - script: |
+              //https://plugins.jenkins.io/job-dsl/#plugin-content-getting-started
               organizationFolder('pnminh-org') {
                 description('This contains branch source jobs for Bitbucket and GitHub')
                 displayName('pnminh-org')
@@ -58,11 +59,13 @@ controller:
                   }
                 }
                 configure {
-                  def traits = it / 'sources' / 'data' / 'jenkins.branch.BranchSource' / 'source' / 'traits'
+                  //https://github.com/jenkinsci/job-dsl-plugin/blob/master/docs/The-Configure-Block.md
+                  //https://github.com/jenkinsci/github-branch-source-plugin/blob/master/src/main/java/org/jenkinsci/plugins/github_branch_source/ForkPullRequestDiscoveryTrait.java
+                  def traits = it / navigators / 'org.jenkinsci.plugins.github__branch__source.GitHubSCMNavigator' / 'traits'
                   traits << 'org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait' {
                       strategyId(1)
-                      trust(class: 'org.jenkinsci.plugins.github_branch_source.ForkPullRequestDiscoveryTrait$TrustPermission')
-                  }
+                      trust(class: 'org.jenkinsci.plugins.github_branch_source.ForkPullRequestDiscoveryTrait$TrustEveryone')
+                  }                 
                 }
                 projectFactories {
                   remoteJenkinsFileWorkflowMultiBranchProjectFactory {
