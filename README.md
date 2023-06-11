@@ -36,6 +36,12 @@ Get Org API endpoint
 - Go to Org > Settings > ![picture 9](images/f1af019560a21aa84752dbefb7184da590eb9387728cd2decbe53eb326c685cb.png)  
 - Go to User account > Developer settings > Personal access tokens > Fine grained tokens
  ![picture 15](images/85d32d723f005cb2fdea65c57ace75cf627ec45cbd28e53bb555a8ace211ec36.png)  
+need `metadata` read access to scan repos
+ ![picture 16](images/9cdc5460f18ecc81649ca7f54be3953b1aba34b0fede2907b5f597659af74865.png)  
+need `contents` for branch scanning
+![picture 17](images/444c9a66200d2945889afc5b032bb1878810bc526caff56fba7a8eae9dac9073.png)  
+need `Pull requests` for PR scanning
+![picture 18](images/5a8ef05681d8f360dc065ec58698a68f8e2d5a522c022942fe6a2d1cd65b5c2a.png)  
 
 - Can choose classic github token
 - Add github enterprise server
