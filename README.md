@@ -35,7 +35,8 @@ Get Org API endpoint
 
 - Go to Org > Settings > ![picture 9](images/f1af019560a21aa84752dbefb7184da590eb9387728cd2decbe53eb326c685cb.png)  
 - Go to User account > Developer settings > Personal access tokens > Fine grained tokens
-![picture 10](images/a2101f088859184e4a5fccdfaac92f2225f8c3899c2016a93b19c77ac45e3b17.png)  
+ ![picture 15](images/85d32d723f005cb2fdea65c57ace75cf627ec45cbd28e53bb555a8ace211ec36.png)  
+
 - Can choose classic github token
 - Add github enterprise server
   ![picture 11](images/84078e9394cab60b9bbbb94848c896fbf823886dd939f99863ac12f670888ddf.png)  
@@ -43,5 +44,8 @@ Get Org API endpoint
 ![picture 12](images/715b6f02b3447aa8f967e35571985f4c6a46c5a11bfa42947093f7d6462b6bfc.png)  
 - Allow Jenkinsfile from other repo to be used(need to restart Jenkins to have it take effect). Also requires [GitHub Branch Source plugin ](https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-admin-guide/github-branch-source-plugin)
 ![picture 14](images/7fee139b23fd9a0f94326eaaa3543f3ddfb57f4f0af89c1df8b677a031228b4b.png)  
-- Full configuration:
-<video src='images/fullscreen.mov'></video>
+## Configuration as code
+```
+$ kubectl create namespace jenkins-iac
+$ helm upgrade --install jenkins --namespace jenkins-iac jenkins/jenkins --values .helm/jenkins/values.yaml --values .helm/jenkins/creds-values.yaml --wait
+```
