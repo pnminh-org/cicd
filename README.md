@@ -1,3 +1,18 @@
+## Organization pipeline using centralized Jenkinsfile
+When developing an application and utilizing Jenkins pipeline for CI/CD, it's common to have a Jenkinsfile stored in the same repository as the application. This allows easy configuration of the Jenkinsfile to meet the specific CI/CD requirements of the application.
+
+However, in large organizations, allowing a custom Jenkinsfile in each application repository can have its drawbacks. These include:
+
+Code vs. Jenkinsfile: The application team not only focuses on writing code that benefits users directly but also needs to ensure the quality and maintenance of the Jenkinsfile.
+
+Cumbersome Support: Supporting the CI/CD process at the organizational level becomes challenging because each team may have its own unique approach to the process.
+
+Enforcing Policies: Enforcing the company's policies for the CI/CD process, such as security scanning, becomes difficult as application teams are free to implement their own customized CI/CD workflows.
+
+To address these challenges, organizations can consider using Jenkins shared libraries for their pipelines. However, this approach may still allow application teams to use their own Jenkinsfile and introduce undesired customizations.
+
+To overcome these issues, the [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/) plugin can be utilized. This plugin enables the usage of a centralized Jenkinsfile at the organization level, specifically within the "Organization folder" item in the Jenkins configuration. By adopting this approach, organizations can establish and enforce uniform CI/CD processes and policies across all applications throughout the organization, ensuring consistency and standardization.
+
 ## Install Jenkins server
 ### Set up K8s cluster
 ```
