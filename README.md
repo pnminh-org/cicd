@@ -13,6 +13,8 @@ To address these challenges, organizations can consider using Jenkins shared lib
 
 To overcome these issues, the [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/) plugin can be utilized. This plugin enables the usage of a centralized Jenkinsfile at the organization level, specifically within the "Organization folder" item in the Jenkins configuration. By adopting this approach, organizations can establish and enforce uniform CI/CD processes and policies across all applications throughout the organization, ensuring consistency and standardization.
 
+This article provides a comprehensive guide on establishing an organization-wide CI/CD pipeline using a centralized Jenkinsfile. We will explore the step-by-step process, starting with configuring it through the user interface (UI), and then seamlessly transitioning those steps into everything-as-code configurations.
+
 ## Install Jenkins server
 ### Set up K8s cluster
 ```
