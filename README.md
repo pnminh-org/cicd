@@ -13,9 +13,29 @@ To address these challenges, organizations can consider using Jenkins shared lib
 
 To overcome these issues, the [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/) plugin can be utilized. This plugin enables the usage of a centralized Jenkinsfile at the organization level, specifically within the "Organization folder" item in the Jenkins configuration. By adopting this approach, organizations can establish and enforce uniform CI/CD processes and policies across all applications throughout the organization, ensuring consistency and standardization.
 
-This article provides a comprehensive guide on establishing an organization-wide CI/CD pipeline using a centralized Jenkinsfile. We will explore the step-by-step process, starting with configuring it through the user interface (UI), and then seamlessly transitioning those steps into everything-as-code configurations.
+This article provides a comprehensive guide on establishing an organization-wide CI/CD pipeline using a centralized Jenkinsfile. We will explore the step-by-step process, starting with setting it up through the user interface (UI), and then seamlessly transitioning those steps into everything-as-code configurations.
 
-## Install Jenkins server
+## Set up Jenkins server
+### Installation options
+To showcase the process outlined in this article, we will expediently configure a local Jenkins server for testing purposes. Among the plethora of [installation options](https://www.jenkins.io/doc/book/installing/) at your disposal, containerization emerges as an outstanding choice owing to its remarkable advantages:
+
+* **Isolation and Portability**: Running Jenkins in a container provides a distinct environment, isolating it from the underlying host system. By encapsulating Jenkins and its dependencies within a container, it ensures consistent operation across different environments. This portability allows for easy migration and replication of the Jenkins setup, as the container can be deployed on any host system supporting the containerization platform.
+
+* **Easy Deployment and Scalability**: Containerization streamlines the deployment process by having Jenkins and its dependencies packaged into a single container image, allowing for seamless deployment on any host system with the required container runtime. Furthermore, it facilitates effortless scaling by running multiple Jenkins instances, enabling horizontal scalability to handle increased workloads.
+
+* **Version Management and Rollbacks**: Jenkins container images can be versioned and tagged, simplifying tracking and enabling easy rollback to previous versions if necessary.
+
+* **Dependency Management**: Containerization offers a self-contained environment for Jenkins and its dependencies. This eliminates conflicts or compatibility issues with other applications or libraries present on the host system. Additionally, it enables efficient management and isolation of specific plugin or tool versions required by Jenkins, ensuring consistent and reproducible builds.
+
+* **Resource Efficiency**: Containerization optimizes resource utilization. Jenkins containers can be configured with specific resource limits, such as CPU and memory, ensuring efficient utilization of system resources. This capability enables effective resource management, improved performance, and the ability to run multiple Jenkins instances on the same host without interference.
+
+* **Easy Updates and Maintenance**: Containerization simplifies the process of updating or upgrading Jenkins. By updating the container image with the latest Jenkins version or applying patches, we can keep Jenkins up to date without impacting the host system. This streamlined approach to updates and maintenance tasks reduces the risk of disrupting the host environment or other applications running on it.
+
+In this article, we will utilize [Red Hat OpenShift Local](https://developers.redhat.com/products/openshift-local), a lightweight single-node Openshift cluster designed for local computer resources, to deploy Jenkins. OpenShift offers the core features of Kubernetes while providing enhanced security, integrated developer experience, and additional enterprise-focused functionalities that meet the requirements of many companies and organizations.
+
+You can follow this [link](https://access.redhat.com/documentation/en-us/red_hat_openshift_local/2.5/html/getting_started_guide/installation_gsg) for step-by-step instructions on installing Red Hat OpenShift Local on your specific operating system platform.
+### Installing Jenkins server using Helm chart
+To simplify the installation process further, we will leverage a Jenkins Helm chart developed by CloudBees. The Helm chart enables rapid installation with convenient customization options for easy configuration.
 ### Set up K8s cluster
 ```
 $ minikube start
