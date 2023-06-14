@@ -3,37 +3,36 @@ When developing an application and utilizing Jenkins pipeline for CI/CD, it's co
 
 However, in large organizations, allowing a custom Jenkinsfile in each application repository can have its drawbacks. These include:
 
-Code vs. Jenkinsfile: The application team not only focuses on writing code that benefits users directly but also needs to ensure the quality and maintenance of the Jenkinsfile.
+* **Code vs. Jenkinsfile**: The application team must balance their focus on writing code for users with maintaining the quality and upkeep of the Jenkinsfile.
 
-Cumbersome Support: Supporting the CI/CD process at the organizational level becomes challenging because each team may have its own unique approach to the process.
+* **Cumbersome support**: Supporting organization-wide CI/CD process becomes challenging with teams using unique approaches.
 
-Enforcing Policies: Enforcing the company's policies for the CI/CD process, such as security scanning, becomes difficult as application teams are free to implement their own customized CI/CD workflows.
+* **Policy compliance**: Enforcing company policies for the CI/CD process, such as security scanning, becomes difficult as application teams are free to implement their own customized workflows.
 
-To address these challenges, organizations can consider using Jenkins shared libraries for their pipelines. However, this approach may still allow application teams to use their own Jenkinsfile and introduce undesired customizations.
+To tackle these challenges, Jenkins shared libraries can be used, but this approach may still allow application teams to utilize their own Jenkinsfile and introduce undesired customizations.
 
-To overcome these issues, the [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/) plugin can be utilized. This plugin enables the usage of a centralized Jenkinsfile at the organization level, specifically within the "Organization folder" item in the Jenkins configuration. By adopting this approach, organizations can establish and enforce uniform CI/CD processes and policies across all applications throughout the organization, ensuring consistency and standardization.
+The [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/) plugin may offer a solution to those issues. It enables a centralized Jenkinsfile with the `Organization Folder` and `MultiBranch` pipeline options in Jenkins. By adopting this approach, organizations can establish and enforce uniform CI/CD processes and policies across development teams, ensuring consistency and standardization.
 
-This article provides a comprehensive guide on establishing an organization-wide CI/CD pipeline using a centralized Jenkinsfile. We will explore the step-by-step process, starting with setting it up through the user interface (UI), and then seamlessly transitioning those steps into everything-as-code configurations.
+This article provides a comprehensive guide on establishing an organization-wide CI/CD pipeline using a centralized Jenkinsfile. We'll cover the step-by-step process, starting with UI setup and transitioning seamlessly to everything-as-code configurations.
 
 ## Set up Jenkins server
 ### Installation options
-To showcase the process outlined in this article, we will expediently configure a local Jenkins server for testing purposes. Among the plethora of [installation options](https://www.jenkins.io/doc/book/installing/) at your disposal, containerization emerges as an outstanding choice owing to its remarkable advantages:
+We will use a local Jenkins server to showcase the process outlined in this article. Among many [installation options](https://www.jenkins.io/doc/book/installing/), containerization emerges as an outstanding choice owing to its remarkable advantages:
 
-* **Isolation and Portability**: Running Jenkins in a container provides a distinct environment, isolating it from the underlying host system. By encapsulating Jenkins and its dependencies within a container, it ensures consistent operation across different environments. This portability allows for easy migration and replication of the Jenkins setup, as the container can be deployed on any host system supporting the containerization platform.
+* **Isolation and Portability**: Running Jenkins in a container ensures consistent operation across different environments, allowing easy migration and replication on any host system supporting the containerization platform.
 
-* **Easy Deployment and Scalability**: Containerization streamlines the deployment process by having Jenkins and its dependencies packaged into a single container image, allowing for seamless deployment on any host system with the required container runtime. Furthermore, it facilitates effortless scaling by running multiple Jenkins instances, enabling horizontal scalability to handle increased workloads.
+* **Easy Deployment and Scalability**: Containerization simplifies deployment with a single container image and enables effortless scaling to handle increased workloads.
 
-* **Version Management and Rollbacks**: Jenkins container images can be versioned and tagged, simplifying tracking and enabling easy rollback to previous versions if necessary.
+* **Version Management and Rollbacks**: Jenkins container images can be versioned and tagged, facilitating easy tracking and rollback to previous versions.
 
-* **Dependency Management**: Containerization offers a self-contained environment for Jenkins and its dependencies. This eliminates conflicts or compatibility issues with other applications or libraries present on the host system. Additionally, it enables efficient management and isolation of specific plugin or tool versions required by Jenkins, ensuring consistent and reproducible builds.
+* **Dependency Management**: Containerization provides a self-contained environment, eliminating conflicts with other applications and allowing for efficient management of Jenkins dependencies.
 
-* **Resource Efficiency**: Containerization optimizes resource utilization. Jenkins containers can be configured with specific resource limits, such as CPU and memory, ensuring efficient utilization of system resources. This capability enables effective resource management, improved performance, and the ability to run multiple Jenkins instances on the same host without interference.
+* **Resource Efficiency**: Containers can be configured with specific resource limits, optimizing resource utilization and enabling multiple Jenkins instances on the same host.
 
-* **Easy Updates and Maintenance**: Containerization simplifies the process of updating or upgrading Jenkins. By updating the container image with the latest Jenkins version or applying patches, we can keep Jenkins up to date without impacting the host system. This streamlined approach to updates and maintenance tasks reduces the risk of disrupting the host environment or other applications running on it.
+* **Easy Updates and Maintenance**: Updating Jenkins becomes straightforward by updating the container image, reducing the risk of disrupting the host environment or other applications.
 
-In this article, we will utilize [Red Hat OpenShift Local](https://developers.redhat.com/products/openshift-local), a lightweight single-node Openshift cluster designed for local computer resources, to deploy Jenkins. OpenShift offers the core features of Kubernetes while providing enhanced security, integrated developer experience, and additional enterprise-focused functionalities that meet the requirements of many companies and organizations.
+In this article, we will use [Red Hat OpenShift Local](https://developers.redhat.com/products/openshift-local), a lightweight single-node cluster for deploying Jenkins. OpenShift provides Kubernetes core features with enhanced security, integrated developer experience, and enterprise-focused functionalities. Follow this [link](https://access.redhat.com/documentation/en-us/red_hat_openshift_local/2.5/html/getting_started_guide/installation_gsg) for step-by-step installation instructions tailored to your operating system.
 
-You can follow this [link](https://access.redhat.com/documentation/en-us/red_hat_openshift_local/2.5/html/getting_started_guide/installation_gsg) for step-by-step instructions on installing Red Hat OpenShift Local on your specific operating system platform.
 ### Installing Jenkins server using Helm chart
 To simplify the installation process further, we will leverage a Jenkins Helm chart developed by CloudBees. The Helm chart enables rapid installation with convenient customization options for easy configuration.
 ### Set up K8s cluster
