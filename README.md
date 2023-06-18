@@ -79,7 +79,7 @@ GitHub organizations facilitate collaborative work, empowering teams to manage r
 ![Create Organization](images/create_org.png) 
 
 
-In addition, to enable Jenkins server communication with our GitHub organization, create a GitHub access token. Visit `Personal account's Settings > Developer settings > Personal access tokens > Fine-grained tokens` to generate a new token. Although classic tokens are available, fine-grained tokens offer more granular access control.
+In addition, to facilitate communication between the Jenkins server and our GitHub organization, it is necessary to create a GitHub access token. Visit `Personal account's Settings > Developer settings > Personal access tokens > Fine-grained tokens` to generate a new token. Although classic tokens are available, fine-grained tokens offer more granular access control.
 
 Make sure the `Resource owner` is set to your organization account:
 ![GitHub access token](images/github_access_token.png)  
