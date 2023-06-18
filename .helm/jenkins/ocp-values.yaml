@@ -1,14 +1,12 @@
 controller:
-  installPlugins:
-    - kubernetes:3900.va_dce992317b_4
-    - workflow-aggregator:596.v8c21c963d92d
-    - configuration-as-code:1647.ve39ca_b_829b_42
-    - git:5.1.0
-  podSecurityContextOverride: #ToDo: check helm chart logic if this is for container
+  adminUser: "admin"
+  adminPassword: admin
+  installLatestSpecifiedPlugins: true
+  podSecurityContextOverride: #required for pod running on OCP
     runAsNonRoot: true
     runAsUser: 1000650000
-    supplementalGroups: [1000650000]
-  containerSecurityContext: #ToDo: check helm chart logic if this is for init container
+    runAsGroup: 1000650000
+  containerSecurityContext: #required jenkins init container
     runAsUser: 1000650000
     runAsGroup: 1000650000
   initContainerEnv: #https://github.com/jenkinsci/helm-charts/issues/506

@@ -1,9 +1,5 @@
 controller:
-  installPlugins:
-    - kubernetes:3900.va_dce992317b_4
-    - workflow-aggregator:596.v8c21c963d92d
-    - configuration-as-code:1647.ve39ca_b_829b_42
-    - git:5.1.0
+  installLatestSpecifiedPlugins: true
   additionalPlugins:
     - github-api:1.314-431.v78d72a_3fe4c3
     - github:1.37.1

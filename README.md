@@ -39,8 +39,35 @@ Start with creating a project for Jenkins
 ```
 $ oc new-project jenkins
 ```
+By default OCP run pods with non-privileged access to mitigate risks, restrict capabilities, and prevent harmful actions within the cluster, so we need a helm values file for Jenkins with following overridden values to account for that setup:
+```yaml
+controller:
+  installLatestSpecifiedPlugins: true
+  podSecurityContextOverride: #required for pod running on OCP
+    runAsNonRoot: true
+    runAsUser: 1000650000
+    runAsGroup: 1000650000
+  containerSecurityContext: #required jenkins init container
+    runAsUser: 1000650000
+    runAsGroup: 1000650000
+  initContainerEnv: #https://github.com/jenkinsci/helm-charts/issues/506
+    - name: CACHE_DIR
+      value: "/tmp/cache"
+```
+### Installing required plugins
+We can access the Jenkins UI at http://localhost:8080 via port-forwarding.
+```
+$ oc --namespace jenkins port-forward svc/jenkins 8080:8080
+```
+Log in with the admin user and the password generated during Jenkins installation.
 
-
+Navigate to `Manage Jenkins > Plugins > Available plugins` and install the following plugins:
+- [GitHub](https://plugins.jenkins.io/github/): integrates Jenkins with Github projects as we will use Github as our example   
+- [GitHub Branch Source](https://plugins.jenkins.io/github-branch-source/): integrate `Organization Folder` and `Multibranch Pipeline`  items with GitHub
+- [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/): allow using a centralized Jenkinsfile from a remote repository
+- [GitHub API](https://plugins.jenkins.io/github-api/): dependency for other GitHub related plugins
+![picture 20](images/install_plugins.png)  
+Make sure to select `Download now and install after restart` as the `Remote Jenkinsfile Provider` doesn't work properly without first restarting Jenkins. 
 ### Set up K8s cluster
 ```
 $ minikube start
