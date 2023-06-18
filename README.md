@@ -61,7 +61,30 @@ $ oc --namespace jenkins port-forward svc/jenkins 8080:8080
 ```
 Log in with the admin user and the password generated during Jenkins installation.
 
+Navigate to `Manage Jenkins > Plugins > Available plugins` and install the following plugins:
+
+![Install Plugin](images/install_plugins.png)  
+
+
+- [GitHub](https://plugins.jenkins.io/github/): integrates Jenkins with Github projects as we will use Github as our example   
+- [GitHub Branch Source](https://plugins.jenkins.io/github-branch-source/): integrate `Organization Folder` and `Multibranch Pipeline`  items with GitHub
+- [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/): allow using a centralized Jenkinsfile from a remote repository
+- [GitHub API](https://plugins.jenkins.io/github-api/): dependency for other GitHub related plugins.
+
+Make sure Jenkins is restarted after all the plugins are installed to have them work properly. 
+
 ### Set up GitHub Organization and access token
+GitHub organizations facilitate collaborative work, empowering teams to manage repositories, access permissions, and establish hierarchical structures. Personal accounts, on the other hand, are meant for individual profiles with limited collaboration features. To create a new organization, navigate to your `Personal account's Settings > Organizations > New organization`:
+
+![Create Organization](images/create_org.png) 
+
+
+In addition, to enable Jenkins server communication with our GitHub organization, create a GitHub access token. Visit `Personal account's Settings > Developer settings > Personal access tokens > Fine-grained tokens` to generate a new token. Although classic tokens are available, fine-grained tokens offer more granular access control.
+
+Make sure the `Resource owner` is set to your organization account:
+![GitHub access token](images/github_access_token.png)  
+
+For our pipeline to function correctly with the installed plugins, `read-only` access is necessary for the following GitHub organization permissions: `Contents`, `Metadata`, and `Pull requests`. If you want Jenkins to modify data, write permissions will be required as well. Remember to save the generated token securely, as GitHub displays it only once.
 
 ### Configure Organization Folder item
 
@@ -69,13 +92,7 @@ Log in with the admin user and the password generated during Jenkins installatio
 
 ### Everthing as code
 
-Navigate to `Manage Jenkins > Plugins > Available plugins` and install the following plugins:
-- [GitHub](https://plugins.jenkins.io/github/): integrates Jenkins with Github projects as we will use Github as our example   
-- [GitHub Branch Source](https://plugins.jenkins.io/github-branch-source/): integrate `Organization Folder` and `Multibranch Pipeline`  items with GitHub
-- [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/): allow using a centralized Jenkinsfile from a remote repository
-- [GitHub API](https://plugins.jenkins.io/github-api/): dependency for other GitHub related plugins
-![picture 20](images/install_plugins.png)  
-Make sure Jenkins is restarted after all the plugins are installed to have them work properly. 
+
 ### Set up K8s cluster
 ```
 $ minikube start
