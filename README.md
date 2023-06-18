@@ -61,13 +61,21 @@ $ oc --namespace jenkins port-forward svc/jenkins 8080:8080
 ```
 Log in with the admin user and the password generated during Jenkins installation.
 
+### Set up GitHub Organization and access token
+
+### Configure Organization Folder item
+
+### Scanning repositories and run the first pipeline
+
+### Everthing as code
+
 Navigate to `Manage Jenkins > Plugins > Available plugins` and install the following plugins:
 - [GitHub](https://plugins.jenkins.io/github/): integrates Jenkins with Github projects as we will use Github as our example   
 - [GitHub Branch Source](https://plugins.jenkins.io/github-branch-source/): integrate `Organization Folder` and `Multibranch Pipeline`  items with GitHub
 - [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/): allow using a centralized Jenkinsfile from a remote repository
 - [GitHub API](https://plugins.jenkins.io/github-api/): dependency for other GitHub related plugins
 ![picture 20](images/install_plugins.png)  
-Make sure to select `Download now and install after restart` as the `Remote Jenkinsfile Provider` doesn't work properly without first restarting Jenkins. 
+Make sure Jenkins is restarted after all the plugins are installed to have them work properly. 
 ### Set up K8s cluster
 ```
 $ minikube start
