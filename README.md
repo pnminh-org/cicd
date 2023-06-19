@@ -146,8 +146,8 @@ When we run a build, the remote Jenkinsfile will also be checked out and used fo
 
 
 ### Jenkins configuration as code
-Instead of going through the Jenkins UI to set up our `Organization folder` structure, Jenkins provides [Jenkins Configuration as Code plugin](https://www.jenkins.io/projects/jcasc/) to configure Jenkins pipelines in a fully reproducible way. 
-Let's first add the additional plugins we need for our pipeline to the `values.yaml` file
+Rather than manually configuring our `Organization folder` structure through the Jenkins UI, we can utilize the [Jenkins Configuration as Code plugin](https://www.jenkins.io/projects/jcasc/) to establish Jenkins pipelines in a fully reproducible manner. This plugin allows us to define our Jenkins configuration using code, ensuring consistency and enabling easy replication.
+To begin, let's update the `values.yaml` file by adding the necessary plugins required for our pipeline:
 ```yaml
 controller:
   ...
@@ -159,7 +159,7 @@ controller:
     - job-dsl:1.84 #for org folder setup
 ```
 
-Then add the GitHub access token to Jenkins. create a file, `creds-values.yaml`
+Next, we'll incorporate the GitHub access token into Jenkins' credentials by creating a new file named `creds-values.yaml`.
 ```yaml
 controller:
   JCasC:
@@ -176,7 +176,7 @@ controller:
                       password: <GITHUB_ACCESS_TOKEN>
                       description: "Username/Password Credentials for pnminh-org authentication"
 ```
-We then can create a [Job DSL](https://plugins.jenkins.io/job-dsl). If you are not familiar with Job DSL syntax, [here](https://plugins.jenkins.io/job-dsl/#plugin-content-getting-started) is a quick way to test your the script before make it into a working version. Also the `Job DSL API reference` located at https://<your.jenkins.installation>/plugin/job-dsl/api-viewer/index.html should give you the idea of what need to be added to the script.  Here is the one, `org-folder-job-dsl-values.yaml`, that will configure our `Organization folder` in the same way we did with the UI:
+Afterwards, we can create a [Job DSL](https://plugins.jenkins.io/job-dsl) script. If you're unfamiliar with the Job DSL syntax, [here](https://plugins.jenkins.io/job-dsl/#plugin-content-getting-started) is a quick way to test your the script before implementing it as a working version. Additionally, you can refer to the Job DSL API reference located at `https://<your.jenkins.installation>/plugin/job-dsl/api-viewer/index.html` for guidance on script enhancements.  Add a new values file, `org-folder-job-dsl-values.yaml`, to create a job that configures our `Organization folder` in the same manner we did with the UI:
 ```yaml
 controller:
   JCasC:
@@ -261,9 +261,21 @@ controller:
                 }       
               }
 ```
-**Note**: as the time of writing, I could not use the Job DSL API script for `ForkPullRequestDiscoveryTrait` as part of `GitHub Branch Source` plugin. Using [configure block](https://github.com/jenkinsci/job-dsl-plugin/wiki/The-Configure-Block), and the path retrieved from `$JENKINS_HOME/jobs/<Organization folder name>/config.xml` did the trick for me. More info of the issue can be found here `https://issues.jenkins.io/browse/JENKINS-61119`
-Run a new installation of Jenkins using all the values files we just created/updated:
+**Note**: at the time of writing, I could not use the Job DSL API script for `ForkPullRequestDiscoveryTrait` as part of `GitHub Branch Source` plugin. However, using the [configure block](https://github.com/jenkinsci/job-dsl-plugin/wiki/The-Configure-Block)and retrieving the path from `$JENKINS_HOME/jobs/<Organization folder name>/config.xml` has been found to resolve this issue. More information about this problem can be found at `https://issues.jenkins.io/browse/JENKINS-61119`.
+
+Finally, run a new installation of Jenkins using all the values files we just created and updated:
 ```bash
 $ oc new-project jenkins-jcasc
 $ helm upgrade --install jenkins jenkins/jenkins --values .helm/jenkins/values.yaml --values .helm/jenkins/creds-values.yaml --values .helm/jenkins/org-folder-job-dsl-values.yaml
 ```
+Once the installation is complete, you will find the newly created `Organization Folder pipeline` ready for use, empowering you to efficiently manage and execute your pipelines within Jenkins.
+## Summary
+In this article, we have provided a step-by-step guide for running an organizational pipeline using a centralized Jenkinsfile.
+
+To begin, we covered the installation of Jenkins on OpenShift using the Helm chart, ensuring a seamless setup process.
+
+Next, we explored the creation of an 'Organization Folder Pipeline' within the Jenkins UI. We emphasized the utilization of a remote Jenkinsfile to promote reusability and enforce policy guidelines effectively.
+
+Finally, we demonstrated how to improve efficiency by utilizing the Jenkins Configuration as Code plugin. This powerful tool allows you to define reusable code that automates tasks, eliminating the need for manual configuration. This approach not only streamlines the deployment process but also ensures consistency and simplifies future maintenance.
+
+In upcoming articles, we will dive deeper into the process of building and deploying applications to the OpenShift platform, leveraging the organizational pipeline we have just set up.
