@@ -39,7 +39,7 @@ Start with creating a project for Jenkins
 ```bash
 $ oc new-project jenkins
 ```
-By default OCP run pods with non-privileged access to mitigate risks, restrict capabilities, and prevent harmful actions within the cluster, so we need a helm values file for Jenkins that allow us to use a non-root user:
+By default OCP run pods with non-privileged access to mitigate risks, restrict capabilities, and prevent harmful actions within the cluster. In order to adhere to this security measure, we need to configure a Helm custom values file for Jenkins that enables the usage of a non-root user:
 
 ```yaml
 controller:
@@ -55,7 +55,7 @@ controller:
       value: "/tmp/cache"
 ```
 
-The values for `runAsUser` and `runAsGroup` can be found from the Openshift project's annotations:
+To determine the values for `runAsUser` and `runAsGroup`, you can retrieve them from the `annotations` of the OpenShift project associated with Jenkins. Use the following oc command to fetch the values:
 ```bash
 oc get project/jenkins -o jsonpath='uid-range:{.metadata.annotations.openshift\.io/sa\.scc\.uid-range}{"\n"}supplement-groups:{.metadata.annotations.openshift\.io/sa\.scc\.supplemental-groups}{"\n"}' 
 uid-range:1000670000/10000
@@ -63,7 +63,7 @@ supplement-groups:1000670000/10000
 ```
 You can read more about Openshift's `uid` and `gid` [here](https://cloud.redhat.com/blog/a-guide-to-openshift-and-uids)
 
-**Note** The plugins that are specified with `controller.installPlugins` in the default [helm values](https://github.com/jenkinsci/helm-charts/blob/main/charts/jenkins/values.yaml) may not up-to-date or have conflicting dependency versions with other plugins so it may be better to specify specific version in our custom values file as well:
+In addition to the security configurations, it is important to note that the plugins specified using `controller.installPlugins` in the [default helm values](https://github.com/jenkinsci/helm-charts/blob/main/charts/jenkins/values.yaml) might not be up-to-date or may have conflicting dependency versions with other plugins. It is strongly recommended to use specific versions in our custom values file to ensure compatibility and stability. Here are the versions that have been tested at the time of writing this article:
 ```yaml
 controller:
   ...
@@ -73,20 +73,20 @@ controller:
     - configuration-as-code:1647.ve39ca_b_829b_42
     - git:5.1.0
 ```
-In the future article, we will look into creating custom Jenkins image that has all the needed dependencies to avoid any conflicting versions and to speed up the startup time for Jenkins server.
+In an upcoming article, we will explore the creation of a custom Jenkins image that includes all the necessary dependencies. This approach will help avoid conflicting plugin versions and improve the startup time of the Jenkins server."
 
 We then can install Jenkins using helm:
 ```bash
 $ helm upgrade --install jenkins jenkins/jenkins --values .helm/jenkins/values.yaml
 ```
 ### Installing required plugins
-We can access the Jenkins UI at http://localhost:8080 via port-forwarding.
+We can access the Jenkins UI at http://localhost:8080 via port-forwarding:
 ```bash
 $ oc --namespace jenkins port-forward svc/jenkins 8080:8080
 ```
-Log in with the admin user and the password generated during Jenkins installation.
+Log in with the admin user and the password generated during the Jenkins installation process.
 
-Navigate to `Manage Jenkins > Plugins > Available plugins` and install the following plugins:
+Then, navigate to `Manage Jenkins > Plugins > Available plugins` and install the following plugins:
 
 ![Install Plugin](images/install_plugins.png)  
 
@@ -96,10 +96,10 @@ Navigate to `Manage Jenkins > Plugins > Available plugins` and install the follo
 - [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/): allow using a centralized Jenkinsfile from a remote repository
 - [GitHub API](https://plugins.jenkins.io/github-api/): dependency for other GitHub related plugins.
 
-Make sure Jenkins is restarted after all the plugins are installed to have them work properly. 
+Make sure to restart Jenkins after plugin installation for proper functionality.
 
 ### Set up GitHub Organization and access token
-GitHub organizations facilitate collaborative work, empowering teams to manage repositories, access permissions, and establish hierarchical structures. Personal accounts, on the other hand, are meant for individual profiles with limited collaboration features. To create a new organization, navigate to your `Personal account's Settings > Organizations > New organization`:
+GitHub organizations facilitate collaborative work, empowering teams to manage repositories, access permissions, and establish hierarchical structures. To create a new organization, navigate to your `Personal account's Settings > Organizations > New organization`:
 
 ![Create Organization](images/create_org.png) 
 
@@ -116,30 +116,29 @@ For our pipeline to function correctly with the installed plugins, `read-only` a
 Go to `Jenkins UI > New item` and create a `Organization Folder` pipeline.
 ![Organization Folder Pipeline](images/org_folder_item.png)  
 
+This will lead us to the configuration page. The setup for each section is as follow: 
+1. `General`: Add name and descriptions for your organization. 
 
-Fill in descriptions for your organization in `General` section. 
-
-For `Projects`, choose `GitHub Organization`. Leave `API endpoint` empty unless you have a custom server for your org. For `Credentials`, we will add the access token generated from the previous step. Click `Add` to add your credentials, either at `global` scope or at your organization folder pipeline one.
+2. `Projects`: Select `GitHub Organization`. Leave `API endpoint` field empty unless you have a custom server for your org. For `Credentials`, add the access token generated from the previous step by clicking `Add` to add your credentials, either at `global` scope or at the pipeline's one.
 ![Jenkins Creds](images/add_jenkins_creds.png)  
 Use the GitHub organization account name for `Owner` field.
 The configurations should look like this:
 ![Configure Org Projects](images/configure_org_projects.png)  
-
-Regarding `Behaviors`, you can select how Jenkins check out repositories, branches and PRs for builds.
-Apart from default behaviors, we will filter the repositories based on their topic names by selecting `Filter by Repository Topics` option. Only those with the topics mentioned will be added to the organization folder
+For `Behaviors`, you can select how Jenkins check out repositories, branches and PRs for builds. Apart from default behaviors, we will filter the repositories based on their topic names by selecting `Filter by Repository Topics` option. Only those that have all the mentioned `topics` will be added to the organization folder
 ![Filter Repo Topics](images/filter_repo_topics.png)  
 
-For `Project Recognizers`, as we will use a remote Jenkinsfile, let's remove `Pipeline Jenkinsfile` option.
-With the remote Jenkinsfile, I will use the one on [my GitHub organization](https://github.com/pnminh-org/cicd) at `jenkins/org-pipeline/Jenkinsfile`.
+
+1. `Project Recognizers`: remove `Pipeline Jenkinsfile` option and choose `Remote Jenkinsfile Provider Plugin` instead.
+For that, I use the one on [my GitHub organization's cicd repository](https://github.com/pnminh-org/cicd) located at `jenkins/org-pipeline/Jenkinsfile`.
 ![Configure Remote Jenkinsfile](images/configure_remote_jenkinsfile.png)
 
-Leave others as-is and save the configuration. 
+Leave other settings unchanged and save the configuration. 
 
 ### Scanning repositories and run the first pipeline
-As mentioned early, we only add repositories with the `topics` matching the configuration for our `organization folder`, in this case `cicd`. Let's create a new repository under our organization and add `cicd` topic to it.
+To align with our organization's configuration from the previous step, only repositories with the `cicd` topic are added. Let's create a new repository and assign the `cicd` topic to it.
 ![Test App repository](images/test_app_repo.png)  
 
-Now go back to `Jenkins UI Dashboard> <Your Org folder name> > Scan Organization Now`. The new repository should show up after the scan.
+Now go back to `Jenkins UI Dashboard> [Your Org folder name] > Scan Organization Now`. The new repository should show up after the scan.
 ![Test App pipeline](images/test_app_pipeline.png)  
 When we run a build, the remote Jenkinsfile will also be checked out and used for the pipeline:
 ![Pipeline Logs](images/pipeline_logs.png)  
