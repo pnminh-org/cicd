@@ -36,13 +36,12 @@ We will use a local Jenkins server to showcase the process outlined in this arti
 ### Installing Jenkins server using Helm chart
 To simplify the installation process further, we will leverage the [official helm chart](https://artifacthub.io/packages/helm/jenkinsci/jenkins) developed by Jenkins. This helm chart enables rapid installation with convenient customization options for easy configuration. We use the default configs for the first iteration.
 Start with creating a project for Jenkins
-```
+```bash
 $ oc new-project jenkins
 ```
 By default OCP run pods with non-privileged access to mitigate risks, restrict capabilities, and prevent harmful actions within the cluster, so we need a helm values file for Jenkins with following overridden values to account for that setup:
 ```yaml
 controller:
-  installLatestSpecifiedPlugins: true
   podSecurityContextOverride: #required for pod running on OCP
     runAsNonRoot: true
     runAsUser: 1000650000
@@ -54,13 +53,25 @@ controller:
     - name: CACHE_DIR
       value: "/tmp/cache"
 ```
-We then can install Jenkins using helm:
+**Note** The plugins that are specified with `controller.installPlugins` in the default [helm values](https://github.com/jenkinsci/helm-charts/blob/main/charts/jenkins/values.yaml) may not up-to-date or have conflicting dependency versions with other plugins so it may be better to specify specific version in our custom values file as well:
+```yaml
+controller:
+  ...
+  installPlugins:
+    - kubernetes:3900.va_dce992317b_4
+    - workflow-aggregator:596.v8c21c963d92d
+    - configuration-as-code:1647.ve39ca_b_829b_42
+    - git:5.1.0
 ```
+In the future article, we will look into creating custom Jenkins image that has all the needed dependencies to avoid any conflicting versions and to speed up the startup time for Jenkins server.
+
+We then can install Jenkins using helm:
+```bash
 $ helm upgrade --install jenkins jenkins/jenkins --values .helm/jenkins/values.yaml
 ```
 ### Installing required plugins
 We can access the Jenkins UI at http://localhost:8080 via port-forwarding.
-```
+```bash
 $ oc --namespace jenkins port-forward svc/jenkins 8080:8080
 ```
 Log in with the admin user and the password generated during Jenkins installation.
@@ -187,7 +198,7 @@ controller:
                       }
                       // Only scan repos that have topics
                       gitHubTopicsFilter {
-                        topicList("remote-jenkinsfile")
+                        topicList("cicd")
                       }
                       gitHubExcludeArchivedRepositories()
                     }
@@ -243,7 +254,7 @@ controller:
 ```
 **Note**: as the time of writing, I could not use the Job DSL API script for `ForkPullRequestDiscoveryTrait` as part of `GitHub Branch Source` plugin. Using [configure block](https://github.com/jenkinsci/job-dsl-plugin/wiki/The-Configure-Block), and the path retrieved from `$JENKINS_HOME/jobs/<Organization folder name>/config.xml` did the trick for me. More info of the issue can be found here `https://issues.jenkins.io/browse/JENKINS-61119`
 Run a new installation of Jenkins using all the values files we just created/updated:
-```
+```bash
 $ oc new-project jenkins-jcasc
 $ helm upgrade --install jenkins jenkins/jenkins --values .helm/jenkins/values.yaml --values .helm/jenkins/creds-values.yaml --values .helm/jenkins/org-folder-job-dsl-values.yaml
 ```

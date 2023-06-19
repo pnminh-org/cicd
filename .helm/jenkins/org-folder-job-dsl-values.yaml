@@ -28,7 +28,7 @@ controller:
                       }
                       // Only scan repos that have topics
                       gitHubTopicsFilter {
-                        topicList("remote-jenkinsfile")
+                      topicList("cicd")
                       }
                       gitHubExcludeArchivedRepositories()
                     }
