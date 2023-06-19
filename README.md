@@ -13,7 +13,10 @@ To tackle these challenges, Jenkins shared libraries can be used, but this appro
 
 The [Remote Jenkinsfile Provider](https://plugins.jenkins.io/remote-file/) plugin may offer a solution to those issues. It enables a centralized Jenkinsfile with the `Organization Folder` and `MultiBranch` pipeline options in Jenkins. By adopting this approach, organizations can establish and enforce uniform CI/CD processes and policies across development teams, ensuring consistency and standardization.
 
-This article provides a comprehensive guide on establishing an organization-wide CI/CD pipeline using a centralized Jenkinsfile. We'll cover the step-by-step process, starting with UI setup and transitioning seamlessly to everything-as-code configurations.
+This article provides a comprehensive guide on establishing an organization-wide CI/CD pipeline using a centralized Jenkinsfile. We'll cover the step-by-step process, starting with UI setup and transitioning seamlessly to everything-as-code configurations.   
+
+The overall flow is illustrated in the following diagram:
+![Organization folder with remote Jenkinsfile diagram](./images/org_folder_with_remote_jenkinsfile.png)
 
 ## Set up Jenkins server
 ### Installation options
