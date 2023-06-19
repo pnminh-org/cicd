@@ -85,10 +85,41 @@ Make sure the `Resource owner` is set to your organization account:
 ![GitHub access token](images/github_access_token.png)  
 
 For our pipeline to function correctly with the installed plugins, `read-only` access is necessary for the following GitHub organization permissions: `Contents`, `Metadata`, and `Pull requests`. If you want Jenkins to modify data, write permissions will be required as well. Remember to save the generated token securely, as GitHub displays it only once.
+ 
 
 ### Configure Organization Folder item
+Go to `Jenkins UI > New item` and create a `Organization Folder` pipeline.
+![Organization Folder Pipeline](images/org_folder_item.png)  
+
+
+Fill in descriptions for your organization in `General` section. 
+
+For `Projects`, choose `GitHub Organization`. Leave `API endpoint` empty unless you have a custom server for your org. For `Credentials`, we will add the access token generated from the previous step. Click `Add` to add your credentials, either at `global` scope or at your organization folder pipeline one.
+![Jenkins Creds](images/add_jenkins_creds.png)  
+Use the GitHub organization account name for `Owner` field.
+The configurations should look like this:
+![Configure Org Projects](images/configure_org_projects.png)  
+
+Regarding `Behaviors`, you can select how Jenkins check out repositories, branches and PRs for builds.
+Apart from default behaviors, we will filter the repositories based on their topic names by selecting `Filter by Repository Topics` option. Only those with the topics mentioned will be added to the organization folder
+![Filter Repo Topics](images/filter_repo_topics.png)  
+
+For `Project Recognizers`, as we will use a remote Jenkinsfile, let's remove `Pipeline Jenkinsfile` option.
+With the remote Jenkinsfile, I will use the one on [my GitHub organization](https://github.com/pnminh-org/cicd) at `jenkins/org-pipeline/Jenkinsfile`.
+![Configure Remote Jenkinsfile](images/configure_remote_jenkinsfile.png)
+
+Leave others as-is and save the configuration. 
 
 ### Scanning repositories and run the first pipeline
+As mentioned early, we only add repositories with the `topics` matching the configuration for our `organization folder`, in this case `cicd`. Let's create a new repository under our organization and add `cicd` topic to it.
+![Test App repository](images/test_app_repo.png)  
+
+Now go back to `Jenkins UI Dashboard> <Your Org folder name> > Scan Organization Now`. The new repository should show up after the scan.
+![Test App pipeline](images/test_app_pipeline.png)  
+When we run a build, the remote Jenkinsfile will also be checked out and used for the pipeline:
+![Pipeline Logs](images/pipeline_logs.png)  
+
+
 
 ### Everthing as code
 
