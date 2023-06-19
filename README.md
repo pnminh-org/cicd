@@ -54,6 +54,10 @@ controller:
     - name: CACHE_DIR
       value: "/tmp/cache"
 ```
+We then can install Jenkins using helm:
+```
+$ helm upgrade --install jenkins jenkins/jenkins --values .helm/jenkins/values.yaml
+```
 ### Installing required plugins
 We can access the Jenkins UI at http://localhost:8080 via port-forwarding.
 ```
@@ -121,8 +125,128 @@ When we run a build, the remote Jenkinsfile will also be checked out and used fo
 
 
 
-### Everthing as code
+### Jenkins configuration as code
+Instead of going through the Jenkins UI to set up our `Organization folder` structure, Jenkins provides [Jenkins Configuration as Code plugin](https://www.jenkins.io/projects/jcasc/) to configure Jenkins pipelines in a fully reproducible way. 
+Let's first add the additional plugins we need for our pipeline to the `values.yaml` file
+```yaml
+controller:
+  ...
+  additionalPlugins:
+    - github-api:1.314-431.v78d72a_3fe4c3
+    - github:1.37.1
+    - github-branch-source:1725.vd391eef681a_e #for Github repo structure 
+    - remote-file:1.23 #for remote Jenkinsfile
+    - job-dsl:1.84 #for org folder setup
+```
 
+Then add the GitHub access token to Jenkins. create a file, `creds-values.yaml`
+```yaml
+controller:
+  JCasC:
+    configScripts:
+      global-creds: |
+        credentials:
+          system:
+            domainCredentials:
+              - credentials:
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: "pnminh-org"
+                      username: "pnminh"
+                      password: <GITHUB_ACCESS_TOKEN>
+                      description: "Username/Password Credentials for pnminh-org authentication"
+```
+We then can create a [Job DSL](https://plugins.jenkins.io/job-dsl). If you are not familiar with Job DSL syntax, [here](https://plugins.jenkins.io/job-dsl/#plugin-content-getting-started) is a quick way to test your the script before make it into a working version. Also the `Job DSL API reference` located at https://<your.jenkins.installation>/plugin/job-dsl/api-viewer/index.html should give you the idea of what need to be added to the script.  Here is the one, `org-folder-job-dsl-values.yaml`, that will configure our `Organization folder` in the same way we did with the UI:
+```yaml
+controller:
+  JCasC:
+    configScripts:
+      job-dsl: | #file name, can be any name. The content will be picked up by Jenkins
+        jobs:
+          - script: |
+              organizationFolder('pnminh-org') {
+                description('This contains branch source jobs for Bitbucket and GitHub')
+                displayName('pnminh-org')
+                triggers {
+                  cron('@midnight')
+                }
+                organizations {
+                  github {
+                    repoOwner("pnminh-org")
+                    credentialsId("pnminh-org")
+                    traits {
+                      // Discovers branches on the repository.
+                      gitHubBranchDiscovery {
+                        // Determines which branches are discovered.
+                        // 1 = Exclude branches that are also filed as PRs
+                        strategyId(1)
+                      }
+                      gitHubPullRequestDiscovery {
+                        // 1 = Merging the pull request with the current target branch revision
+                        strategyId(1)
+                      }
+                      // Only scan repos that have topics
+                      gitHubTopicsFilter {
+                        topicList("remote-jenkinsfile")
+                      }
+                      gitHubExcludeArchivedRepositories()
+                    }
+                  }
+                }
+                configure {
+                  def traits = it / navigators / 'org.jenkinsci.plugins.github__branch__source.GitHubSCMNavigator' / 'traits'
+                  traits << 'org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait' {
+                      strategyId(1)
+                      trust(class: 'org.jenkinsci.plugins.github_branch_source.ForkPullRequestDiscoveryTrait$TrustEveryone')
+                  }                 
+                }
+                projectFactories {
+                  remoteJenkinsFileWorkflowMultiBranchProjectFactory {
+                    // File or directory name used as marker to recognize the project need to be build.
+                    localMarker(null)
+                    remoteJenkinsFileSCM {
+                      // The git plugin provides fundamental git operations for Jenkins projects.
+                      gitSCM {
+                        userRemoteConfigs {
+                          userRemoteConfig {
+                            // Specify the URL or path of the git repository.
+                            url("https://github.com/pnminh-org/cicd")
+                            // ID of the repository, such as origin, to uniquely identify this repository among other remote repositories.
+                            name("origin")
+                            // A refspec controls the remote refs to be retrieved and how they map to local refs.
+                            refspec("main")
+                            // Credential used to check out sources.
+                            credentialsId("pnminh-org")
+                          }
+                        }
+                        // List of branches to build.
+                        branches {
+                          branchSpec {
+                          // Specify the branches if you'd like to track a specific branch in a repository.
+                            name("main")
+                          }
+                        }
+                        browser {
+                          github {
+                            // Specify the HTTP URL for this repository's GitHub page (such as https://github.com/jquery/jquery).
+                            repoUrl("https://github.com/pnminh-org/cicd")
+                          }
+                        }
+                        gitTool(null)
+                      }
+                    }
+                    matchBranches(false)
+                    remoteJenkinsFile("jenkins/org-pipeline/Jenkinsfile")
+                  }
+                }       
+              }
+```
+**Note**: as the time of writing, I could not use the Job DSL API script for `ForkPullRequestDiscoveryTrait` as part of `GitHub Branch Source` plugin. Using [configure block](https://github.com/jenkinsci/job-dsl-plugin/wiki/The-Configure-Block), and the path retrieved from `$JENKINS_HOME/jobs/<Organization folder name>/config.xml` did the trick for me. More info of the issue can be found here `https://issues.jenkins.io/browse/JENKINS-61119`
+Run a new installation of Jenkins using all the values files we just created/updated:
+```
+$ oc new-project jenkins-jcasc
+$ helm upgrade --install jenkins jenkins/jenkins --values .helm/jenkins/values.yaml --values .helm/jenkins/creds-values.yaml --values .helm/jenkins/org-folder-job-dsl-values.yaml
+```
 
 ### Set up K8s cluster
 ```
