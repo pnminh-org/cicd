@@ -39,20 +39,30 @@ Start with creating a project for Jenkins
 ```bash
 $ oc new-project jenkins
 ```
-By default OCP run pods with non-privileged access to mitigate risks, restrict capabilities, and prevent harmful actions within the cluster, so we need a helm values file for Jenkins with following overridden values to account for that setup:
+By default OCP run pods with non-privileged access to mitigate risks, restrict capabilities, and prevent harmful actions within the cluster, so we need a helm values file for Jenkins that allow us to use a non-root user:
+
 ```yaml
 controller:
   podSecurityContextOverride: #required for pod running on OCP
     runAsNonRoot: true
     runAsUser: 1000650000
     runAsGroup: 1000650000
-  containerSecurityContext: #required jenkins init container
+  containerSecurityContext: #required for jenkins init container
     runAsUser: 1000650000
     runAsGroup: 1000650000
   initContainerEnv: #https://github.com/jenkinsci/helm-charts/issues/506
     - name: CACHE_DIR
       value: "/tmp/cache"
 ```
+
+The values for `runAsUser` and `runAsGroup` can be found from the Openshift project's annotations:
+```bash
+oc get project/jenkins -o jsonpath='uid-range:{.metadata.annotations.openshift\.io/sa\.scc\.uid-range}{"\n"}supplement-groups:{.metadata.annotations.openshift\.io/sa\.scc\.supplemental-groups}{"\n"}' 
+uid-range:1000670000/10000
+supplement-groups:1000670000/10000
+```
+You can read more about Openshift's `uid` and `gid` [here](https://cloud.redhat.com/blog/a-guide-to-openshift-and-uids)
+
 **Note** The plugins that are specified with `controller.installPlugins` in the default [helm values](https://github.com/jenkinsci/helm-charts/blob/main/charts/jenkins/values.yaml) may not up-to-date or have conflicting dependency versions with other plugins so it may be better to specify specific version in our custom values file as well:
 ```yaml
 controller:
